@@ -353,7 +353,7 @@ func (f *FileWalker) walkDirectoryRecursive(iteration int,
 					return err
 				}
 
-				gitIgnore := gitignore.New(bytes.NewReader(c), abs, nil)
+				gitIgnore := gitignore.New(bytes.NewReader(c), filepath.ToSlash(abs), nil)
 				gitignores = append(gitignores, gitIgnore)
 			}
 		}
@@ -472,7 +472,7 @@ func (f *FileWalker) walkDirectoryRecursive(iteration int,
 	for _, file := range files {
 		shouldIgnore := false
 		var skipReason SkipReason
-		joined := filepath.Join(directory, file.Name())
+		joined := filepath.ToSlash(filepath.Join(directory, file.Name()))
 
 		for _, ignore := range gitignores {
 			// we have the following situations
@@ -650,7 +650,7 @@ func (f *FileWalker) walkDirectoryRecursive(iteration int,
 	for _, dir := range dirs {
 		var shouldIgnore bool
 		var skipReason SkipReason
-		joined := filepath.Join(directory, dir.Name())
+		joined := filepath.ToSlash(filepath.Join(directory, dir.Name()))
 
 		// Check against the ignore files we have if the file we are looking at
 		// should be ignored
