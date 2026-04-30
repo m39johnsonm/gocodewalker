@@ -1572,3 +1572,62 @@ func TestWindowsPathNormalization(t *testing.T) {
 		t.Error("expected main.go to be found but it was not")
 	}
 }
+func TestGitInfoExclude(t *testing.T) {
+	test_dir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
+	_ = os.MkdirAll(filepath.Join(test_dir, ".git", "info"), 0755)
+	_ = os.WriteFile(filepath.Join(test_dir, ".git", "info", "exclude"), []byte("secret.txt\n"), 0644)
+	_, _ = os.Create(filepath.Join(test_dir, "secret.txt"))
+	_, _ = os.Create(filepath.Join(test_dir, "visible.txt"))
+
+	fileListQueue := make(chan *File, 10)
+	walker := NewFileWalker(test_dir, fileListQueue)
+	walker.IgnoreGitIgnore = false
+	_ = walker.Start()
+
+	count := 0
+	for range fileListQueue {
+		count++
+	}
+
+	if count != 1 {
+		t.Errorf("expected 1 file but got %test_dir", count)
+	}
+}
+func TestGitInfoExcludeNoGitDir(t *testing.T) {
+	test_dir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
+	_, _ = os.Create(filepath.Join(test_dir, "visible.txt"))
+
+	fileListQueue := make(chan *File, 10)
+	walker := NewFileWalker(test_dir, fileListQueue)
+	walker.IgnoreGitIgnore = false
+	_ = walker.Start()
+
+	count := 0
+	for range fileListQueue {
+		count++
+	}
+
+	if count != 1 {
+		t.Errorf("expected 1 file but got %test_dir", count)
+	}
+}
+func TestGitInfoExcludeIgnoredWhenGitIgnoreDisabled(t *testing.T) {
+	test_dir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
+	_ = os.MkdirAll(filepath.Join(test_dir, ".git", "info"), 0755)
+	_ = os.WriteFile(filepath.Join(test_dir, ".git", "info", "exclude"), []byte("secret.txt\n"), 0644)
+	_, _ = os.Create(filepath.Join(test_dir, "secret.txt"))
+
+	fileListQueue := make(chan *File, 10)
+	walker := NewFileWalker(test_dir, fileListQueue)
+	walker.IgnoreGitIgnore = true
+	_ = walker.Start()
+
+	count := 0
+	for range fileListQueue {
+		count++
+	}
+
+	if count != 1 {
+		t.Errorf("expected 1 file but got %test_dir", count)
+	}
+}
