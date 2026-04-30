@@ -1573,14 +1573,14 @@ func TestWindowsPathNormalization(t *testing.T) {
 	}
 }
 func TestGitInfoExclude(t *testing.T) {
-	test_dir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
-	_ = os.MkdirAll(filepath.Join(test_dir, ".git", "info"), 0755)
-	_ = os.WriteFile(filepath.Join(test_dir, ".git", "info", "exclude"), []byte("secret.txt\n"), 0644)
-	_, _ = os.Create(filepath.Join(test_dir, "secret.txt"))
-	_, _ = os.Create(filepath.Join(test_dir, "visible.txt"))
+	testDir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
+	_ = os.MkdirAll(filepath.Join(testDir, ".git", "info"), 0755)
+	_ = os.WriteFile(filepath.Join(testDir, ".git", "info", "exclude"), []byte("secret.txt\n"), 0644)
+	_, _ = os.Create(filepath.Join(testDir, "secret.txt"))
+	_, _ = os.Create(filepath.Join(testDir, "visible.txt"))
 
 	fileListQueue := make(chan *File, 10)
-	walker := NewFileWalker(test_dir, fileListQueue)
+	walker := NewFileWalker(testDir, fileListQueue)
 	walker.IgnoreGitIgnore = false
 	_ = walker.Start()
 
@@ -1590,15 +1590,15 @@ func TestGitInfoExclude(t *testing.T) {
 	}
 
 	if count != 1 {
-		t.Errorf("expected 1 file but got %test_dir", count)
+		t.Errorf("expected 1 file but got %d", count)
 	}
 }
 func TestGitInfoExcludeNoGitDir(t *testing.T) {
-	test_dir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
-	_, _ = os.Create(filepath.Join(test_dir, "visible.txt"))
+	testDir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
+	_, _ = os.Create(filepath.Join(testDir, "visible.txt"))
 
 	fileListQueue := make(chan *File, 10)
-	walker := NewFileWalker(test_dir, fileListQueue)
+	walker := NewFileWalker(testDir, fileListQueue)
 	walker.IgnoreGitIgnore = false
 	_ = walker.Start()
 
@@ -1608,17 +1608,17 @@ func TestGitInfoExcludeNoGitDir(t *testing.T) {
 	}
 
 	if count != 1 {
-		t.Errorf("expected 1 file but got %test_dir", count)
+		t.Errorf("expected 1 file but got %d", count)
 	}
 }
 func TestGitInfoExcludeIgnoredWhenGitIgnoreDisabled(t *testing.T) {
-	test_dir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
-	_ = os.MkdirAll(filepath.Join(test_dir, ".git", "info"), 0755)
-	_ = os.WriteFile(filepath.Join(test_dir, ".git", "info", "exclude"), []byte("secret.txt\n"), 0644)
-	_, _ = os.Create(filepath.Join(test_dir, "secret.txt"))
+	testDir, _ := os.MkdirTemp(os.TempDir(), randSeq(10))
+	_ = os.MkdirAll(filepath.Join(testDir, ".git", "info"), 0755)
+	_ = os.WriteFile(filepath.Join(testDir, ".git", "info", "exclude"), []byte("secret.txt\n"), 0644)
+	_, _ = os.Create(filepath.Join(testDir, "secret.txt"))
 
 	fileListQueue := make(chan *File, 10)
-	walker := NewFileWalker(test_dir, fileListQueue)
+	walker := NewFileWalker(testDir, fileListQueue)
 	walker.IgnoreGitIgnore = true
 	_ = walker.Start()
 
@@ -1628,6 +1628,6 @@ func TestGitInfoExcludeIgnoredWhenGitIgnoreDisabled(t *testing.T) {
 	}
 
 	if count != 1 {
-		t.Errorf("expected 1 file but got %test_dir", count)
+		t.Errorf("expected 1 file but got %d", count)
 	}
 }
